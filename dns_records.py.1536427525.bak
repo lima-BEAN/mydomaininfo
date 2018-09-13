@@ -1,0 +1,117 @@
+# using http://www.dnspython.org/
+import dns.resolver
+from dns.resolver import NoAnswer
+
+import ipinfo
+
+class DNS:
+
+    def ns_check(self, text):
+        ns_record = list()
+        for rdata in dns.resolver.query(text, 'NS'):
+            print("NS: {0}".format(rdata))
+            ns_record.append(rdata)
+        # dns_info["NS"] = ns_record
+        return ns_record
+
+    # MX record check
+    def mx_check(self, text):
+        mx_record = dict()
+        mx_answers = dns.resolver.query(text, 'MX')
+        for rdata in mx_answers:
+            print("MX is {0} has preference {1}".format(rdata.exchange,rdata.preference))
+            mx_record[rdata.exchange] = rdata.preference
+        # dns_info["MX"] = mx_record
+
+        return mx_record
+
+    # TXT record check
+    def txt_check(self, text):
+        txt_record = list()
+        try:
+            answers = dns.resolver.query(text, 'TXT')
+            for rdata in answers:
+                for txt_string in rdata.strings:
+                    # retrieve TXT values and change from byte to text
+                    # print("mname: {0}".format(txt_string.decode(encoding='UTF-8')))
+                    txt_record.append(txt_string.decode(encoding='UTF-8'))
+            return txt_record
+        except NoAnswer:
+            print('no TXT')
+            return txt_record
+
+    # SOA record check
+    def soa_check(self, text):
+        soa_record = list()
+        answers = dns.resolver.query(text, 'SOA')
+        for rdata in answers:
+            soa_record.append(rdata.mname)
+        return soa_record
+
+    # CNAME record check
+    def cname_check(self, text):
+        cname_record = dict()
+        try:
+            for rdata in dns.resolver.query(text, 'CNAME'):
+                print("CNAME: {0}".format(rdata.target))
+                cname_record.append(rdata.target)
+            return cname_record
+        except NoAnswer:
+            try:
+                new_text = 'www.' + text
+                for rdata in dns.resolver.query(new_text, 'CNAME'):
+                    print("{0} CNAME is: {1}".format(new_text,rdata.target))
+                    cname_record[new_text] = rdata.target
+                    print(cname_record)
+                return cname_record
+
+            except NoAnswer:
+                print("There is no CNAME associated with {0}".format(text))
+                return cname_record
+
+    # A record check
+    def a_check(self, text):
+        a_record = list()
+        for rdata in dns.resolver.query(text, 'A'):
+            a_record.append(rdata.address)
+        return a_record
+
+
+    # Gather all dns records that are available
+    def dns_info(self, text):
+
+        dns_info = dict()
+
+        #todo: provide variables if noanwser comes out
+        try:
+            # Check for NS records
+            dns_info["NS"] = self.ns_check(text)
+        except NoAnswer:
+            print('No NS found')
+        try:
+            # Check for SOA records
+            dns_info["SOA"] = self.soa_check(text)
+        except NoAnswer:
+            print("No SOA")
+        try:
+            # Check for MS records
+            dns_info["MX"] = self.mx_check(text)
+        except NoAnswer:
+            print('No MX found')
+        try:
+            # Check for TXT records
+            dns_info["TXT"] = self.txt_check(text)
+        except NoAnswer:
+            print("No TXT found")
+        try:
+            # Check for CNAME records
+            dns_info["CNAME"] = self.cname_check(text)
+        except NoAnswer:
+            print('No CNAME found')
+        try:
+            # Check for A records
+            dns_info["A"] = self.a_check(text)
+        except NoAnswer:
+            print("No A found")
+
+        return dns_info

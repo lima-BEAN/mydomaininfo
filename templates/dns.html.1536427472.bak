@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Check My Domain</title>
+
+    <!-- Styles from https://bootswatch.com/ -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='_bootswatch.scss') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='_variables.scss') }}">
+    <!-- end of Styles from https://bootswatch.com/ -->
+
+  </head>
+  <body>
+    <div class="container-fluid m-5">
+      <div class="row my-3">
+        <!-- DNS Info  -->
+        <div class="col-lg-4 col-md-6 col-sm-12 float-left my-5">
+          {% if dns_info is defined %}
+            <h3>DNS Info:</h3>
+            {% for data in dns_info %}
+              {% for result in dns_info[data] %}
+                {% if data == 'NS' %}
+                  NS: {{result}} <br>
+                {% elif data == 'MX' %}
+                  MX: {{result}} with a prefence of {{dns_info[data][result]}} <br>
+                {% elif data == 'TXT' %}
+                  TXT: {{result}} <br>
+                {% elif data == 'SOA' %}
+                  SOA: {{result}} <br>
+                {% elif data == 'CNAME' %}
+                  CNAME: {{result}} is pointing to {{dns_info[data][result]}} <br>
+                {% elif data == 'A' %}
+                  A: {{result}} <br>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+	    {% dns_info['Error'] %}
+          {% endif %}
+        </div>
+        <!-- end of DNS Info  -->
+
+        <!-- Domain check form -->
+        <div class="col-lg-4 col-md-6 col-sm-12 float-center my-3">
+          <h1> Check A Domain </h1>
+          <form class="dns-form" method="POST">
+            <input type="text" name="text" placeholder="Enter a domain">
+            <input class="btn-outline-primary btn-lg text-center" type="submit" name="submit" value="CHECK">
+          </form>
+        </div>
+        <!-- end of Domain check form -->
+
+        <!--  Whois and A record -->
+        <div class="col-lg-4 col-md-6 col-sm-12 my-5 float-right">
+          <!--  Whois Info -->
+          <div class="row">
+            <div class="col-12">
+              {% if whois_info is defined %}
+                <h3>WHOIS info:</h3>
+                {% for data in whois_info %}
+                  {% if data == 'Registrar' %}
+                    Registrar: {{ whois_info[data] }} <br>
+                  {% elif data == 'Date Created'%}
+                    Date Created: {{ whois_info[data] }} <br>
+                  {% elif data == 'Date Updated'%}
+                    Date Updated: {{ whois_info[data] }} <br>
+                  {% elif data == 'Date Expiration'%}
+                    Date Expiration: {{ whois_info[data] }} <br>
+                  {% elif data == 'Error'%}
+                    {{ whois_info[data] }}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </div><!-- end of .col-12 -->
+          </div><!-- end of .row -->
+          <!-- end of Whois Info -->
+
+         <!--  A IP info -->
+         
+<!--	 
+	 <div class="row my-3">
+            <div class="col-12">
+              {% if ip_info is defined %}
+                <h3>A Record Info:</h3>
+                {% for data in ip_info %}
+                  {% if data == 'ip' %}
+                    IP: {{ ip_info[data] }} <br>
+                  {% elif data == 'hostname' %}
+                    Hostname: {{ ip_info[data] }} <br>
+                  {% elif data == 'city' %}
+                    City: {{ ip_info[data] }} <br>
+                  {% elif data == 'region' %}
+                    Region: {{ ip_info[data] }} <br>
+                  {% elif data == 'country' %}
+                    Country: {{ ip_info[data] }} <br>
+                  {% elif data == 'postal' %}
+                    Postal: {{ ip_info[data] }} <br>
+                  {% elif data == 'org' %}
+                    Organization: {{ ip_info[data] }} <br>
+                  {% elif data == 'Error'%}
+                    {{ip_info[data]}}
+                  {% endif %}
+                {% endfor %} <br><br>
+              {% endif %}
+
+	     </div>
+          </div>< 
+-->
+          <!-- end of A IP info -->
+        </div>
+        <!-- end of Whois and A record -->
+
+      </div><!-- end of .row -->
+
+      <div class="row my-3">
+        <!-- Visitor IP Info -->
+<!--
+        <div class="col-12">
+          {% if my_ip is defined %}
+            Your current IP is: <b>{{ my_ip }}</b>
+          {% endif %}
+	  </div>
+-->
+        <!-- end of Visitor IP Info -->
+      </div><!-- end of .row -->
+
+    </div><!-- end of container-fluid -->
+
+  </body>
+</html>
